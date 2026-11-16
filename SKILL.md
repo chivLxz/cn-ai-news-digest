@@ -1,12 +1,12 @@
 ---
 name: cn-ai-news-digest
-version: "1.1.0"
-description: "国内顶级科技媒体 AI 资讯日报。从9个中文科技媒体（含2个微信公众号源）RSS 并行抓取 AI 新闻，经去重和筛选后，由（本Agent自身）LLM 智能分类为四大板块：AI大模型、AI软件产品、AI硬件产品、AI公司股票，每类不少于5条，输出 Markdown 表格。当用户说AI资讯、AI新闻、今天的AI动态、AI日报等时触发。"
+version: "1.2.0"
+description: "国内顶级科技媒体 AI 资讯日报。从10个中文科技媒体（含2个微信公众号源）RSS 抓取 AI 新闻，经去重和筛选后，由（本Agent自身）LLM 智能分类为四大板块：AI大模型、AI软件产品、AI硬件产品、AI公司股票，输出 Markdown 表格。当用户说AI资讯、AI新闻、今天的AI动态、AI日报等时触发。"
 ---
 
-# CN AI News Digest v1.1.0
+# CN AI News Digest v1.2.0
 
-国内 AI 行业资讯日报，覆盖 9 个中文科技媒体（含2个微信公众号源），全自动流水线处理。
+国内 AI 行业资讯日报，覆盖 10 个中文科技媒体（含 2 个微信公众号源），全自动流水线处理。
 
 ## Pipeline 总览
 
@@ -16,7 +16,7 @@ RSS抓取(Python) → 去重(Python) → LLM分类(OpenClaw Agent自身) → 输
 
 ### Step 1: RSS 抓取 (Python)
 
-7 个数据源，全部使用直接 RSS feed：
+10 个数据源，全部使用直接 RSS feed（其中 2 个公众号源经由 supsub.net 转出的 feed）：
 
 | 媒体 | RSS 地址 |
 |------|----------|
@@ -32,8 +32,8 @@ RSS抓取(Python) → 去重(Python) → LLM分类(OpenClaw Agent自身) → 输
 | 智东西 | `https://zhidx.com/rss.xml` |
 
 Python 脚本职责：
-- 并行抓取 9 个 RSS feed
-- XML 解析失败时自动降级为正则提取（兼容格式异常的 feed）
+- 依次抓取 10 个 RSS feed（单线程顺序请求，单源失败不影响其他源）
+- XML 解析失败时自动降级：标准 XML → HTMLParser → 正则提取（兼容格式异常的 feed）
 - 提取字段：title、link、description、pubDate、source_name
 - AI 关键词预过滤（宽松匹配）
 - 标题去重（前 25 字符）
@@ -144,9 +144,17 @@ Agent 工作流：
 ```
 cn-ai-news-digest/
 ├── SKILL.md                          # 本文件
+├── references/
+│   └── sources.md                    # RSS 源清单与容错说明
 └── scripts/
     └── fetch_ai_news.py              # 主脚本（纯 Python 标准库）
 ```
+
+## Changelog
+
+- **v1.2.0** — 文档与实现对齐：数据源口径统一为 10 个；更正"并行抓取"为顺序抓取；补全三级降级说明；补全 references/ 文件结构
+- **v1.1.0** — 新增机器之心公众号、智能涌现公众号两个 RSS 源
+- **v1.0.0** — 首版，7 个媒体源
 
 ## 技术约束
 
